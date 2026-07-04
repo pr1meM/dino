@@ -14,10 +14,13 @@ A lightweight terminal text editor written in Go.
 
 ## Build
 
-`git clone https://github.com/pr1mem/dino`
+```sh
+git clone https://github.com/pr1mem/dino`
+```
 
-
-`cd dino`
+```sh
+cd dino
+```
 
 
 ```sh

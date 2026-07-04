@@ -30,33 +30,28 @@ A lightweight terminal text editor written in Go.
 - Mouse support
 - Ctrl+H shows all keybindings
 
-## Build
+
+## Build from source
 
 ```sh
 git clone https://github.com/pr1mem/dino
-```
-
-```sh
 cd dino
-```
-
-
-```sh
 go build -o dino .
 ```
 
-## Install
+## Install system-wide
 
-To install `dino` system-wide so you can just run `dino file` from
-anywhere:
+To install `dino` so you can run it from anywhere:
 
 ```sh
 ./install.sh
 ```
 
-This builds the binary and copies it to `/usr/local/bin`.
+This builds the binary and copies it to `/usr/local/bin`. Once installed, you can open any file with:
 
-You can start dino now from everywhere with `dino <filename>`
+```sh
+dino <filename>
+```
 
 
 ## License

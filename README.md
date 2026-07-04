@@ -31,7 +31,7 @@ A lightweight terminal text editor written in Go.
 - Search
 - Copy/cut/paste, undo/redo, auto-indent, auto-pairing of brackets/quotes
 - Mouse support
-- Ctrl+H shows all keybindings
+- Ctrl + H shows all keybindings
 
 
 ## Build from source

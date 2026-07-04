@@ -1,5 +1,5 @@
 <h1 align="center">
-   Blank Grabber
+   Dino
 </h1>
 <p align= "center">
    <kbd>

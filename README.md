@@ -53,6 +53,9 @@ This builds the binary and copies it to `/usr/local/bin`. Once installed, you ca
 dino <filename>
 ```
 
+<img  src="https://raw.githubusercontent.com/pr1mem/dino/main/images/example1.png">
+<img  src="https://raw.githubusercontent.com/pr1mem/dino/main/images/example2.png">
+
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

@@ -20,6 +20,9 @@
 
 A lightweight terminal text editor written in Go.
 
+<img  src="https://raw.githubusercontent.com/pr1mem/dino/main/images/example1.png">
+<img  src="https://raw.githubusercontent.com/pr1mem/dino/main/images/example2.png">
+
 ## Features
 
 - Tabs for multiple open files
@@ -52,9 +55,6 @@ This builds the binary and copies it to `/usr/local/bin`. Once installed, you ca
 ```sh
 dino <filename>
 ```
-
-<img  src="https://raw.githubusercontent.com/pr1mem/dino/main/images/example1.png">
-<img  src="https://raw.githubusercontent.com/pr1mem/dino/main/images/example2.png">
 
 
 ## License

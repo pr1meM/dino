@@ -3,7 +3,7 @@
 </h1>
 <p align= "center">
    <kbd>
-   <img  src="https://raw.githubusercontent.com/pr1mem/dino/main/images/image.png">
+   <img  src="https://raw.githubusercontent.com/pr1mem/dino/main/images/logo.png">
    </kbd><br><br>
    <img src="https://img.shields.io/github/languages/top/pr1mem/dino">
    <img src="https://img.shields.io/github/stars/pr1mem/dino">

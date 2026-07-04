@@ -15,7 +15,7 @@ A lightweight terminal text editor written in Go.
 ## Build
 
 ```sh
-git clone https://github.com/pr1mem/dino`
+git clone https://github.com/pr1mem/dino
 ```
 
 ```sh

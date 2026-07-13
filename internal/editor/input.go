@@ -9,6 +9,10 @@ import (
 )
 
 func (e *Editor) handleKey(ev *tcell.EventKey) {
+	if e.pasting {
+		e.bufferPasteKey(ev)
+		return
+	}
 	if e.ShowHelp {
 		e.ShowHelp = false
 		return

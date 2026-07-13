@@ -38,6 +38,7 @@ func main() {
 		os.Exit(1)
 	}
 	screen.EnableMouse()
+	screen.EnablePaste()
 	screen.SetTitle("Dino")
 	defer screen.Fini()
 

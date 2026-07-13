@@ -4,6 +4,8 @@
 package editor
 
 import (
+	"strings"
+
 	"github.com/gdamore/tcell/v2"
 
 	"dino/internal/buffer"
@@ -68,6 +70,14 @@ type Editor struct {
 	// internalClipboard is used as a fallback when the OS clipboard is
 	// unavailable (e.g. headless/no clipboard utility installed).
 	internalClipboard string
+
+	// pasting is true between a bracketed-paste Start/End pair reported
+	// by the terminal. Incoming key events are buffered into pasteBuf
+	// instead of running through the normal per-key handlers, which
+	// would otherwise re-trigger auto-indent/auto-pair once for every
+	// pasted character and produce runaway "staircase" indentation.
+	pasting  bool
+	pasteBuf strings.Builder
 
 	quit bool
 }
@@ -144,6 +154,8 @@ func (e *Editor) Run() error {
 			e.handleKey(ev)
 		case *tcell.EventMouse:
 			e.handleMouse(ev)
+		case *tcell.EventPaste:
+			e.handlePasteEvent(ev)
 		}
 		if e.quit {
 			break

@@ -324,6 +324,35 @@ func TestPasteMidLineLeavesIndentAlone(t *testing.T) {
 	}
 }
 
+func TestBracketedPasteAvoidsStaircaseIndent(t *testing.T) {
+	// Terminal-native paste (right-click / Ctrl+Shift+V) delivers the
+	// pasted bytes as ordinary key events wrapped in an EventPaste
+	// Start/End pair, not through pasteClipboard. Without buffering
+	// those keys, each embedded newline would re-trigger auto-indent
+	// and produce runaway "staircase" indentation.
+	e, _ := newTestEditor(t)
+	e.handlePasteEvent(tcell.NewEventPaste(true))
+	for _, r := range "a\n  b\n    c" {
+		if r == '\n' {
+			e.handleKey(key(tcell.KeyEnter, 0, 0))
+			continue
+		}
+		e.handleKey(key(tcell.KeyRune, r, 0))
+	}
+	e.handlePasteEvent(tcell.NewEventPaste(false))
+
+	b := e.CurTab().Buf
+	want := []string{"a", "  b", "    c"}
+	if b.LineCount() != len(want) {
+		t.Fatalf("line count = %d, want %d: %q", b.LineCount(), len(want), b.Lines)
+	}
+	for i, w := range want {
+		if string(b.Lines[i]) != w {
+			t.Fatalf("line %d = %q, want %q", i, string(b.Lines[i]), w)
+		}
+	}
+}
+
 func TestSelectAllKeybinding(t *testing.T) {
 	e, _ := newTestEditor(t)
 	typeString(e, "ab\ncd")

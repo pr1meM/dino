@@ -79,6 +79,41 @@ func Load(path string) (*Buffer, error) {
 	return b, nil
 }
 
+// ExpandTabs replaces literal tab characters in every line with spaces,
+// padding out to the next tabSize column stop. The editor only ever
+// inserts spaces for indentation, so without this a file that uses real
+// tabs renders misaligned: drawText puts one rune in one screen column,
+// so a '\t' occupies a single cell instead of stepping to the next stop.
+func (b *Buffer) ExpandTabs(tabSize int) {
+	if tabSize <= 0 {
+		return
+	}
+	for i, line := range b.Lines {
+		hasTab := false
+		for _, r := range line {
+			if r == '\t' {
+				hasTab = true
+				break
+			}
+		}
+		if !hasTab {
+			continue
+		}
+		out := make([]rune, 0, len(line))
+		for _, r := range line {
+			if r != '\t' {
+				out = append(out, r)
+				continue
+			}
+			spaces := tabSize - (len(out) % tabSize)
+			for ; spaces > 0; spaces-- {
+				out = append(out, ' ')
+			}
+		}
+		b.Lines[i] = out
+	}
+}
+
 // Save writes the buffer content back to FilePath.
 func (b *Buffer) Save() error {
 	return b.SaveAs(b.FilePath)

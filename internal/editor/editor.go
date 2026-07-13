@@ -91,10 +91,13 @@ func (e *Editor) CurTab() *Tab {
 	return e.Tabs[e.Active]
 }
 
-// OpenBuffer adds a new tab for the given buffer and focuses it.
+// OpenBuffer adds a new tab for the given buffer and focuses it. If a tab
+// with the same display title (e.g. "main.c") is already open, that tab is
+// focused instead so the tab bar never shows the same name twice.
 func (e *Editor) OpenBuffer(b *buffer.Buffer) {
+	title := shortPath(b.FilePath)
 	for i, t := range e.Tabs {
-		if t.Buf.FilePath != "" && t.Buf.FilePath == b.FilePath {
+		if b.FilePath != "" && t.Buf.FilePath != "" && t.Title() == title {
 			e.Active = i
 			return
 		}
@@ -106,8 +109,9 @@ func (e *Editor) OpenBuffer(b *buffer.Buffer) {
 
 // OpenFile loads path (or focuses it if already open) into a new tab.
 func (e *Editor) OpenFile(path string) error {
+	title := shortPath(path)
 	for i, t := range e.Tabs {
-		if t.Buf.FilePath == path {
+		if t.Buf.FilePath == path || (t.Buf.FilePath != "" && t.Title() == title) {
 			e.Active = i
 			return nil
 		}
@@ -116,6 +120,7 @@ func (e *Editor) OpenFile(path string) error {
 	if err != nil {
 		return err
 	}
+	b.ExpandTabs(e.Config.TabSize)
 	e.OpenBuffer(b)
 	return nil
 }

@@ -277,6 +277,53 @@ func TestCopyCutPaste(t *testing.T) {
 	}
 }
 
+func TestPasteReindentsToDestination(t *testing.T) {
+	// Clipboard text carries its own (column-0) indentation; pasting it
+	// into an already-indented context should realign every line to the
+	// destination indent while preserving relative nesting.
+	e, _ := newTestEditor(t)
+	b := e.CurTab().Buf
+	// Build "func main() {\n    \n}" without going through the '{'
+	// autopair/smart-newline path, so the destination line is a plain
+	// indented blank line at cursor (line 1, col 4).
+	b.InsertText("func main() {\n    \n}")
+	b.MoveTo(buffer.Position{Line: 1, Col: 4}, false)
+
+	e.setClipboard("if x {\n    y()\n}")
+	e.handleKey(key(tcell.KeyCtrlV, 0, 0))
+
+	want := []string{
+		"func main() {",
+		"    if x {",
+		"        y()",
+		"    }",
+		"}",
+	}
+	if b.LineCount() != len(want) {
+		t.Fatalf("line count = %d, want %d: %q", b.LineCount(), len(want), b.Lines)
+	}
+	for i, w := range want {
+		if string(b.Lines[i]) != w {
+			t.Fatalf("line %d = %q, want %q", i, string(b.Lines[i]), w)
+		}
+	}
+}
+
+func TestPasteMidLineLeavesIndentAlone(t *testing.T) {
+	// Pasting into the middle of an existing line (not just after
+	// whitespace) has no unambiguous destination indent, so the text
+	// should be inserted verbatim.
+	e, _ := newTestEditor(t)
+	typeString(e, "x := ")
+	e.setClipboard("a,\n    b")
+	e.handleKey(key(tcell.KeyCtrlV, 0, 0))
+
+	b := e.CurTab().Buf
+	if string(b.Lines[0]) != "x := a," || string(b.Lines[1]) != "    b" {
+		t.Fatalf("lines = %q / %q", string(b.Lines[0]), string(b.Lines[1]))
+	}
+}
+
 func TestSelectAllKeybinding(t *testing.T) {
 	e, _ := newTestEditor(t)
 	typeString(e, "ab\ncd")
@@ -299,6 +346,22 @@ func TestUndoRedoKeybindings(t *testing.T) {
 	e.handleKey(key(tcell.KeyCtrlY, 0, 0))
 	if string(e.CurTab().Buf.Lines[0]) != "abc" {
 		t.Fatalf("after Ctrl+Y = %q", string(e.CurTab().Buf.Lines[0]))
+	}
+}
+
+func TestOpenFileExpandsTabsToSpaces(t *testing.T) {
+	dir := t.TempDir()
+	os.WriteFile(dir+"/tabbed.go", []byte("if x {\n\ty := 1\n\t\tz := 2\n}\n"), 0o644)
+	e, _ := newTestEditor(t)
+	if err := e.OpenFile(dir + "/tabbed.go"); err != nil {
+		t.Fatal(err)
+	}
+	b := e.CurTab().Buf
+	if got := string(b.Lines[1]); got != "    y := 1" {
+		t.Fatalf("line 1 = %q, want 4 spaces", got)
+	}
+	if got := string(b.Lines[2]); got != "        z := 2" {
+		t.Fatalf("line 2 = %q, want 8 spaces", got)
 	}
 }
 
@@ -359,6 +422,32 @@ func TestOpeningSameFileTwiceReusesTab(t *testing.T) {
 	}
 	if len(e.Tabs) != 2 { // untitled + a.txt, opened twice but reused
 		t.Fatalf("tab count = %d, want 2", len(e.Tabs))
+	}
+}
+
+func TestOpeningDifferentFileWithSameBasenameReusesTab(t *testing.T) {
+	dir1 := t.TempDir()
+	dir2 := t.TempDir()
+	os.WriteFile(dir1+"/main.c", []byte("A\n"), 0o644)
+	os.WriteFile(dir2+"/main.c", []byte("B\n"), 0o644)
+	e, _ := newTestEditor(t)
+	if err := e.OpenFile(dir1 + "/main.c"); err != nil {
+		t.Fatal(err)
+	}
+	if err := e.OpenFile(dir2 + "/main.c"); err != nil {
+		t.Fatal(err)
+	}
+	if len(e.Tabs) != 2 { // untitled + main.c, second open reuses the tab
+		t.Fatalf("tab count = %d, want 2", len(e.Tabs))
+	}
+	count := 0
+	for _, tab := range e.Tabs {
+		if tab.Title() == "main.c" {
+			count++
+		}
+	}
+	if count != 1 {
+		t.Fatalf("main.c tab count = %d, want 1", count)
 	}
 }
 

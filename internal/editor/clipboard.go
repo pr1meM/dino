@@ -45,6 +45,6 @@ func (e *Editor) pasteClipboard() {
 		return
 	}
 	if text := e.getClipboard(); text != "" {
-		t.Buf.InsertText(text)
+		t.Buf.InsertText(reindentPaste(t.Buf, text))
 	}
 }
